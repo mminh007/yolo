@@ -29,7 +29,7 @@ class CNNBlock(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, in_chans, out_chans, expand_ratio = 0.5, shortcut=False, activation="lrelu"):
+    def __init__(self, in_chans, out_chans, expand_ratio=0.5, shortcut=False, activation="lrelu"):
         super().__init__()
         hidden_dim = int(out_chans * expand_ratio)
         self.conv_1 = CNNBlock(in_chans, hidden_dim, kernel_size=1, activation=activation)
@@ -48,7 +48,7 @@ class Block(nn.Module):
     
 
 class Residual_Block(nn.Module):
-    def __init__(self, in_chans, out_chans, n_block = 1, shortcut = False, activation="lrelu"):
+    def __init__(self, in_chans, out_chans, n_block=1, shortcut=False, activation="lrelu"):
         super().__init__()
         
         self.blocks = nn.ModuleList([
@@ -104,8 +104,8 @@ class Prediction(nn.Module):
     def __init__(self, in_chans, n_classes):
         super().__init__()
         self.pred = nn.Sequential(
-            CNNBlock(in_chans, in_chans * 2, kernel_size = 3, padding = 1),
-            nn.Conv2d(in_chans*2, (n_classes + 5) * 3, kernel_size=1)
+            CNNBlock(in_chans, in_chans * 2, kernel_size=3, padding=1),
+            nn.Conv2d(in_chans * 2, (n_classes + 5) * 3, kernel_size=1)
         )
 
         self.num_classes = n_classes
@@ -150,15 +150,15 @@ class yolov3(nn.Module):
     def __init__(self, n_classes=80):
         super().__init__()
         self.backbone = darknet()
-        self.head1 = Head(in_chans = 1024, out_chans = 512, n_block=3, scaled=True, n_classes=n_classes)
+        self.head1 = Head(in_chans=1024, out_chans=512, n_block=3, scaled=True, n_classes=n_classes)
         
-        self.head2 = Head(in_chans = 512, out_chans = 256, n_block=3, scaled=True, n_classes=n_classes)
-        self.conv21 = CNNBlock(in_chans= 256 * 3, out_chans= 256, kernel_size=1)
-        self.conv22 = CNNBlock(in_chans=256, out_chans=512, kernel_size = 3, padding=1)
+        self.head2 = Head(in_chans=512, out_chans=256, n_block=3, scaled=True, n_classes=n_classes)
+        self.conv21 = CNNBlock(in_chans=256 * 3, out_chans=256, kernel_size=1)
+        self.conv22 = CNNBlock(in_chans=256, out_chans=512, kernel_size=3, padding=1)
 
-        self.head3 = Head(in_chans = 256, out_chans = 128, n_block=3, scaled=False, n_classes=n_classes)
-        self.conv31 = CNNBlock(in_chans= 128 * 3, out_chans= 128, kernel_size=1)
-        self.conv32 = CNNBlock(in_chans=128, out_chans=256, kernel_size = 3, padding=1)
+        self.head3 = Head(in_chans=256, out_chans=128, n_block=3, scaled=False, n_classes=n_classes)
+        self.conv31 = CNNBlock(in_chans=128 * 3, out_chans=128, kernel_size=1)
+        self.conv32 = CNNBlock(in_chans=128, out_chans=256, kernel_size=3, padding=1)
 
         # self.flatten = nn.Flatten()
         # self.classifier = nn.Linear(in_features=173056, out_features=n_classes)
@@ -169,13 +169,13 @@ class yolov3(nn.Module):
         x79, yolo82 = self.head1(x)
         #print(yolo82.shape)
 
-        x79 = torch.cat([x79, x61], dim = 1)
+        x79 = torch.cat([x79, x61], dim=1)
         x79 = self.conv21(x79)
         x79 = self.conv22(x79)
 
         x91, yolo94 = self.head2(x79)
         #print(yolo94.shape)
-        x91 = torch.cat([x91, x36], dim =1)
+        x91 = torch.cat([x91, x36], dim=1)
         x91 = self.conv31(x91)
         x91 = self.conv32(x91)
 
