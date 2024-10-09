@@ -34,7 +34,7 @@ class YoloLoss(nn.Module):
 
         # constant signifying how much to pay for each respective part of the loss
         self.lambda_class = 1
-        self.lambda_noobj = 10
+        self.lambda_noobj= 10
         self.lambda_obj = 1
         self.lambda_box = 10
 
@@ -48,7 +48,7 @@ class YoloLoss(nn.Module):
         # Box prediction confidence:
         anchors = anchors.reshape(1,3,1,1,2)
         box_preds = torch.cat([self.sigmoid(predict[..., 1:3]), \
-                               torch.exp(predict[..., 3:5]) * anchors], dim = -1)
+                               torch.exp(predict[..., 3:5]) * scaled_anchor], dim= -1)
 
         # Iou with prediction have object and target (obj)
         ious = iou(box_preds[obj], target[..., 1:5][obj]).detach()
@@ -60,7 +60,7 @@ class YoloLoss(nn.Module):
 
         # Localizaton loss:
         predict[..., 1:3] = self.sigmoid(predict[..., 1:3])
-        target[..., 3:5] = torch.long(1e-6 + target[..., 3:5] / anchors)
+        target[..., 3:5] = torch.long(1e-6 + target[..., 3:5] / scaled_anchor)
 
         box_loss = self.mse(predict[..., 1:5][obj], target[..., 1:5][obj])
 
