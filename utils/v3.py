@@ -113,6 +113,7 @@ class Prediction(nn.Module):
     def forward(self, x):
         output = self.pred(x)
 
+        # (batch, num_anchors, grid_size, grid_size, num_classes + 5)
         output = output.view(x.size(0), 3, self.num_classes + 5, x.size(2), x.size(3))
         output = output.permute(0,1,3,4,2)
 
@@ -166,17 +167,19 @@ class yolov3(nn.Module):
         x, x36, x61 = self.backbone(x)
 
         x79, yolo82 = self.head1(x)
+        #print(yolo82.shape)
 
         x79 = torch.cat([x79, x61], dim = 1)
         x79 = self.conv21(x79)
         x79 = self.conv22(x79)
 
         x91, yolo94 = self.head2(x79)
-        
+        #print(yolo94.shape)
         x91 = torch.cat([x91, x36], dim =1)
         x91 = self.conv31(x91)
         x91 = self.conv32(x91)
 
         yolo106 = self.head3(x91)
-
-        return yolo82, yolo94, yolo106
+        #print(yolo106.shape)
+        # tuple 3 tensors 3 * (Batch, num_anchors, grid, grid, num_classes + 5)
+        return yolo82, yolo94, yolo106 
