@@ -1,11 +1,14 @@
 import numpy as np
 import os
+import yaml
 import pandas as pd
 import torch
 
 from PIL import Image
 from torch.utils.data import Dataset
-from .process import intersection_union as iou
+from utils.process import intersection_union as iou
+
+
 
 class YoloDataset(Dataset):
     """
@@ -18,21 +21,18 @@ class YoloDataset(Dataset):
         which anchor the bbox has higest IOU. We will for loop thw nine indices to assign
         the target to the best anchors.
 
-
     """
     def __init__(self,
-                 csv_file,
-                 img_dir,
-                 label_dir,
+                 root_dir,
                  anchors,
                  imgsz,
                  S=[13, 26, 52],
                  C=20,
                  transform=None):
         super().__init__()
-        self.annotations = pd.read_csv(csv_file)
-        self.img_dir = img_dir
-        self.label_dir = label_dir
+        self.root_dir = root_dir
+        self.img_dir = os.path.join(self.root_dir, "images")
+        self.label_dir = os.path.join(self.root_dir, "labels")
         self.image_size = imgsz
         self.transform = transform
         self.S = S
@@ -47,9 +47,17 @@ class YoloDataset(Dataset):
 
 
     def __getitem__(self, index):
-        label_path = os.path.join(self.label_dir, self.annotations.iloc[index, 1])
-        bboxes = np.roll(np.loadtxt(fname=label_path, delimiter=" ", ndmin=2), 4, axis=1).tolist()
-        img_path = os.path.join(self.img_dir, self.annotations.iloc[index, 0])
+        label_path = os.listdir(self.label_dir)
+        img_idx = label_path[index].split(".")[-2]
+        label_txt = os.path.join(self.label_dir, img_idx + ".txt")
+
+        # boxes = []
+        # with open(label_txt, "r") as f:
+        #     for line in f:
+        #         boxes.append(line.split("\n")[0].split(" "))
+
+        bboxes = np.roll(np.loadtxt(fname=label_txt, delimiter=" ", ndmin=2), 4, axis=0).tolist()
+        img_path = os.path.join(self.img_dir, img_idx + ".jpg")
         image = np.array(Image.open(img_path).convert("RGB"))
 
         if self.transform:
@@ -95,7 +103,5 @@ class YoloDataset(Dataset):
                     targets[scale_idx][anchor_on_scale, i, j, 0] = -1
                 
         return image, tuple(targets)
-
-
 
 
