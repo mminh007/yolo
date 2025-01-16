@@ -67,7 +67,7 @@ def intersection_union(box1, box2, is_pred=True):
         box2_x1 = box2[..., 0:1] - box2[..., 2:3] / 2
         box2_y1 = box2[..., 1:2] - box2[..., 3:4] / 2
         box2_x2 = box2[..., 0:1] + box2[..., 2:3] / 2
-        box2_y2 = box2[..., 3:4] + box2[..., 3:4] / 2
+        box2_y2 = box2[..., 1:2] + box2[..., 3:4] / 2
 
         x1 = torch.max(box1_x1, box2_x1)
         y1 = torch.max(box1_y1, box2_y1)
@@ -76,8 +76,8 @@ def intersection_union(box1, box2, is_pred=True):
 
         intersection = (x2 - x1).clamp(0) * (y2 - y1).clamp(0)
 
-        box1_area = abs((box1_x2 - box1_x1) * (box1_y2, box1_y1))
-        box2_area = abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
+        box1_area = (box1_x2 - box1_x1) * (box1_y2 - box1_y1)
+        box2_area = (box2_x2 - box2_x1) * (box2_y2 - box2_y1)
         union = box1_area + box2_area - intersection
 
         epsilon = 1e-6

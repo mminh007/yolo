@@ -121,7 +121,7 @@ class Prediction(nn.Module):
     
 
 class Head(nn.Module):
-    def __init__(self, in_chans, out_chans, n_block, n_classes, scaled = False):
+    def __init__(self, in_chans, out_chans, n_block, n_classes, scaled = True):
         super().__init__()
         hidden_dim = out_chans // 2
         self.conv_set = Residual_Block(in_chans, in_chans, n_block=n_block)
@@ -142,8 +142,13 @@ class Head(nn.Module):
         if self.scaled:
             x = self.conv2(x)
             x = self.upsampling(x)
-       
-        return x, output if self.scaled else output
+
+            return x, output
+        
+        else:
+            return output
+        
+        #return x, output if self.scaled else output
     
 
 class yolov3(nn.Module):
@@ -165,6 +170,7 @@ class yolov3(nn.Module):
     
     def forward(self, x):
         x, x36, x61 = self.backbone(x)
+        #print("x", x.shape)
 
         x79, yolo82 = self.head1(x)
         #print(yolo82.shape)
