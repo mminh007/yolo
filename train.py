@@ -1,15 +1,14 @@
 from yolos.build import get_loader, ANCHORS
 from yolos.model.v3 import yolov3
-from yolos.utils.process import nms
 from yolos.utils.loss import YoloLoss
+from config_args import setup_parse, update_config
 import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
 from torch import optim
 from tqdm import tqdm
 import logging
 import os
 import time
+
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +133,10 @@ def main(args):
     print("Training completed")
 
 
+if __name__ == "__main__":
+    parser = setup_parse()
 
+    args = parser.parse_args()
+    args = update_config(args)
 
-            
+    main(args)

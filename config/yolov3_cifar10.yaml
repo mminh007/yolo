@@ -1,11 +1,9 @@
-
-#task: detect # (str) 
-mode: train # (str) 
+#task: detect # (str)
+mode: train # (str)
 
 # Train settings -------------------------------------------------------------------------------------------------------
-model: yolov3 # (str, optional) path to model file, 
-name:  #
-data: cifar10 # (str, optional) path to data file, 
+model: yolov3 # (str, optional) path to model file,
+data: cifar10 # (str, optional) path to data file,
 in_chans: 3 #(int) dimension of input
 imgsz: 416 # (int) input images size as int for train and val modes
 S: [13, 26, 52]
@@ -15,15 +13,15 @@ nms_thresh: 0.45
 # Config data ------------------------------------------------------------------------------------------------------
 root: ./yodata
 data_file: ./yodata/data.yaml
-# train_path: ./train 
+# train_path: ./train
 # val_path: ./val
 # test_path: ./test
 nc: 80
-names: car 
+names: car
 
 # Hyperparameter---------------------------------------------------------------------------------------------------------------------------
 epochs: 10 # (int) number of epochs to train for
-batch: 16 # (int) number of images per batch 
+batch: 16 # (int) number of images per batch
 dtype: bf16 # [None, bf16]
 devices: cuda # (int ) device to run on, i.e. cuda  or device=cpu
 #pretrained: None # (bool | str) whether to use a pretrained model (bool) or a model to load weights from (str)
@@ -38,4 +36,3 @@ num_workers: 1
 # output
 save_dir: ./outputs
 logger: logging
-
