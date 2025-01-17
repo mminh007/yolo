@@ -18,6 +18,17 @@ def get_act(act_type = "relu"):
 
 
 class CNNBlock(nn.Module):
+    """
+    A convolutional block with the following structure:
+    Conv2D -> BatchNorm -> Activation.
+
+    Args:
+        in_chans (int): Number of input channels.
+        out_chans (int): Number of output channels.
+        activation (str): Type of activation function (e.g., "relu", "lrelu", "silu").
+        **kwargs: Additional arguments for the convolutional layer.
+    """
+
     def __init__(self, in_chans, out_chans, activation="lrelu", **kwargs):
         super().__init__()
         self.conv = nn.Conv2d(in_chans, out_chans, **kwargs)
@@ -25,6 +36,16 @@ class CNNBlock(nn.Module):
         self.act = get_act(act_type=activation)
     
     def forward(self, x):
+        """
+        Forward pass of CNNBlock.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch, in_chans, height, width).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch, out_chans, height, width).
+        """
+
         return self.act(self.norm(self.conv(x)))
 
 
@@ -65,6 +86,16 @@ class Residual_Block(nn.Module):
 
 
 class darknet(nn.Module):
+    """
+    Forward pass for Darknet backbone.
+    
+    Args:
+        x (torch.Tensor): Input tensor of shape (batch, 3, height, width).
+
+    Returns:
+        Tuple[torch.Tensor]: Feature maps from different stages of the network.
+    """
+    
     def __init__(self): 
         super().__init__()
         self.conv = CNNBlock(in_chans=3, out_chans=32, kernel_size=3, padding=1)
@@ -96,7 +127,12 @@ class darknet(nn.Module):
         x61 = self.res4(self.conv4(x36))
 
         x = self.res5(self.conv5(x61))
-        
+
+        # Assertions for debugging tensor shapes
+        assert x.shape[1] == 1024, f"Expected 1024 channels, got {x.shape[1]}."
+        assert x36.shape[1] == 256, f"Expected 256 channels for x36, got {x36.shape[1]}."
+        assert x61.shape[1] == 512, f"Expected 512 channels for x61, got {x61.shape[1]}."
+            
         return x, x36, x61
 
 
