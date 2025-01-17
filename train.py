@@ -57,9 +57,13 @@ def main(args):
     logger.info(f"  Num batches each epoch = {len(train_loader)}")
     logger.info(f"  Num Epochs = {args.epochs}")
     logger.info(f"  Instantaneous batch size per device = {args.batch}")
-    #start = time.time()
+    start_time = time.time()
+    logger.info("Training started at: %s", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
 
+    best_loss = float("inf")
     for epoch in range(args.epochs):
+        epoch_start_time = time.time()
+
         model.train()
         loop = tqdm(enumerate(train_loader), total=len(train_loader), leave=False)
         
@@ -117,10 +121,16 @@ def main(args):
         logger.info(f"Epoch {epoch+1}/{args.epochs} - Validation Loss: {sum(val_loss) / len(val_loss):.4f}%")
       
         # Save checkpoint
-        model_path = os.path.join(args.save_dir, f"model_epoch_{epoch+1}.pth")
-        torch.save(model.state_dict(), model_path)
-        logger.info(f"Model checkpoint saved at {model_path}")
-    
+        val_mean_loss = sum(val_loss) / len(val_loss)
+        if val_mean_loss < best_loss:
+            best_loss = val_mean_loss
+            best_model_path = os.path.join(args.save_dir, f"best_model.pth")
+            torch.save(model.state_dict(), best_model_path)
+            logger.info(f"Best model saved at {best_model_path} with validation loss: {best_loss:.4f}")
+
+    end_time = time.time()
+    logger.info("Training completed at: %s", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time)))
+    logger.info(f"Total training time: {(end_time - start_time) / 60:.2f} minutes")
     print("Training completed")
 
 
