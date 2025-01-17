@@ -46,7 +46,7 @@ class YoloLoss(nn.Module):
         noobj = target[..., 0] == 0
 
         # Box prediction confidence:
-        anchors = anchors.reshape(1,3,1,1,2)
+        scaled_anchor = scaled_anchor.reshape(1,3,1,1,2)
         box_preds = torch.cat([self.sigmoid(predict[..., 1:3]), \
                                torch.exp(predict[..., 3:5]) * scaled_anchor], dim= -1)
 
